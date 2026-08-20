@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planet Explorer</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #030712;
+      font-family: Arial, sans-serif;
+    }
+
+    canvas {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    #infoPanel {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      width: 400px;
+      height: 200px;
+      background: rgba(15, 23, 42, 0.8);
+      color: white;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      display: none;
+    }
+
+    #infoPanel.visible {
+      display: block;
+    }
+
+    #infoTitle {
+      margin: 0 0 8px 0;
+      font-size: 1.2rem;
+    }
+
+    #infoText {
+      margin: 0;
+      line-height: 1.5;
+      color: #dbeafe;
+    }
+
+    #infoCoordinates {
+      margin: 14px 0 0;
+      color: #fcd34d;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+    }
+
+    #infoDiameter {
+      margin: 6px 0 0;
+      color: #fcd34d;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+    }
+
+    #reticle {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 150px;
+      height: 150px;
+      margin-left: -21px;
+      margin-top: -21px;
+      opacity: 0.5;
+      transform: scale(1);
+      transition: opacity 0.12s ease, transform 0.12s ease, filter 0.12s ease;
+      pointer-events: none;
+      background-image: url("./reticle.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
+      filter: sepia(1) hue-rotate(0deg) saturate(8);
+    }
+
+    #reticle.active {
+      opacity: 1;
+    }
+
+    #reticle.locked {
+      transform: scale(1.1);
+      filter: sepia(1) hue-rotate(90deg) saturate(8);
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="renderCanvas"></canvas>
+
+  <div id="reticle"></div>
+
+  <div id="infoPanel">
+    <h2 id="infoTitle">Feature</h2>
+    <p id="infoText">Description</p>
+    <p id="infoCoordinates">Latitude --, Longitude --</p>
+    <p id="infoDiameter">Diameter -- km</p>
+  </div>
+
+  <script type="module" src="./moongame.ts"></script>
+</body>
+
+</html>
