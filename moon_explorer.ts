@@ -17,6 +17,7 @@ const infoText = document.getElementById("infoText") as HTMLParagraphElement;
 const infoCoordinates = document.getElementById("infoCoordinates") as HTMLParagraphElement;
 const infoDiameter = document.getElementById("infoDiameter") as HTMLParagraphElement;
 const reticle = document.getElementById("reticle") as HTMLDivElement;
+const craterLabel = document.getElementById("craterLabel") as HTMLDivElement | null;
 
 const engine = new BABYLON.Engine(canvas, true);
 const scene = new BABYLON.Scene(engine);
@@ -89,6 +90,8 @@ const features: PlanetFeature[] = [];
 
 const surfaceGuide = new BABYLON.TransformNode("surfaceGuide", scene);
 let surfaceGuideVisible = false;
+let activeFeature: PlanetFeature | null = null;
+const craterLabelSurfaceOffset = 0.15;
 
 function latLonToWorld(radius: number, latitudeDeg: number, longitudeDeg: number): BABYLON.Vector3 {
     const lat = BABYLON.Tools.ToRadians(latitudeDeg);
@@ -191,6 +194,48 @@ function hideInfo() {
     infoPanel.classList.remove("visible");
 }
 
+function updateCraterLabel(feature: PlanetFeature | null) {
+    if (!craterLabel) {
+        return;
+    }
+
+    if (!feature) {
+        craterLabel.style.display = "none";
+        return;
+    }
+
+    const labelWorldPos = feature.worldPosition
+        .clone()
+        .normalize()
+        .scale(planetRadius + craterLabelSurfaceOffset);
+
+    const viewport = camera.viewport.toGlobal(
+        engine.getRenderWidth(),
+        engine.getRenderHeight()
+    );
+
+    const projected = BABYLON.Vector3.Project(
+        labelWorldPos,
+        BABYLON.Matrix.Identity(),
+        scene.getTransformMatrix(),
+        viewport
+    );
+
+    const cameraForward = camera.getTarget().subtract(camera.position).normalize();
+    const toLabel = labelWorldPos.subtract(camera.position).normalize();
+    const inFront = BABYLON.Vector3.Dot(cameraForward, toLabel) > 0;
+
+    if (!inFront || projected.z < 0 || projected.z > 1) {
+        craterLabel.style.display = "none";
+        return;
+    }
+
+    craterLabel.textContent = feature.name;
+    craterLabel.style.left = `${projected.x}px`;
+    craterLabel.style.top = `${projected.y}px`;
+    craterLabel.style.display = "block";
+}
+
 // Debug-friendly camera: keep the scene visible while designing the planet explorer.
 function updateSurfaceCamera() {
     camera.target = BABYLON.Vector3.Zero();
@@ -268,12 +313,14 @@ function updateFeatureDetection() {
         reticle.style.opacity = isTargetLocked ? "1" : "0.7";
         reticle.style.transform = isTargetLocked ? "scale(1.35)" : "scale(1)";
         showInfo(nearestFeature);
+        activeFeature = nearestFeature;
     } else {
         reticle.classList.remove("active");
         reticle.classList.remove("locked");
         reticle.style.opacity = "0";
         reticle.style.transform = "scale(0.8)";
         hideInfo();
+        activeFeature = null;
     }
 }
 
@@ -282,6 +329,7 @@ scene.onBeforeRenderObservable.add(() => {
     updateMovement();
     updateSurfaceCamera();
     updateFeatureDetection();
+    updateCraterLabel(activeFeature);
 });
 
 engine.runRenderLoop(() => {

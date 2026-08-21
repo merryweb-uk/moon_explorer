@@ -6,6 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Moon Explorer</title>
   <style>
+    :root {
+      --crater-label-color: #fcd34d;
+      --crater-label-size: 1rem;
+      --crater-label-weight: 700;
+      --crater-label-y-offset: 50px;
+    }
+
     html,
     body {
       margin: 0;
@@ -91,6 +98,20 @@
       transform: scale(1.1);
       filter: sepia(1) hue-rotate(90deg) saturate(8);
     }
+
+    #craterLabel {
+      position: absolute;
+      display: none;
+      pointer-events: none;
+      transform: translate(-50%, calc(-100% - var(--crater-label-y-offset)));
+      color: var(--crater-label-color);
+      font-size: var(--crater-label-size);
+      font-weight: var(--crater-label-weight);
+      font-family: Arial, sans-serif;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+      white-space: nowrap;
+      z-index: 20;
+    }
   </style>
 </head>
 
@@ -98,6 +119,7 @@
   <canvas id="renderCanvas"></canvas>
 
   <div id="reticle"></div>
+  <div id="craterLabel"></div>
 
   <div id="infoPanel">
     <h2 id="infoTitle">Feature</h2>
