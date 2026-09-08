@@ -14,10 +14,19 @@ const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
 const infoPanel = document.getElementById("infoPanel") as HTMLDivElement;
 const infoTitle = document.getElementById("infoTitle") as HTMLHeadingElement;
 const infoText = document.getElementById("infoText") as HTMLParagraphElement;
-const infoCoordinates = document.getElementById("infoCoordinates") as HTMLParagraphElement;
+
+const infoLatitude = document.getElementById("infoLatitude") as HTMLParagraphElement;
+const infoLongitude = document.getElementById("infoLongitude") as HTMLParagraphElement;
+
 const infoDiameter = document.getElementById("infoDiameter") as HTMLParagraphElement;
 const reticle = document.getElementById("reticle") as HTMLDivElement;
+const guideArrow = document.getElementById("guideArrow") as HTMLDivElement;
+const targetStatus = document.getElementById("targetStatus") as HTMLDivElement;
 const craterLabel = document.getElementById("craterLabel") as HTMLDivElement | null;
+const guideModeButton = document.getElementById("guideModeButton") as HTMLButtonElement;
+const exploreModeButton = document.getElementById("exploreModeButton") as HTMLButtonElement;
+const guideFeatureSelector = document.getElementById("guideFeatureSelector") as HTMLDivElement;
+const guideFeatureList = document.getElementById("guideFeatureList") as HTMLUListElement;
 
 const engine = new BABYLON.Engine(canvas, true);
 const scene = new BABYLON.Scene(engine);
@@ -61,6 +70,7 @@ const camera = new BABYLON.ArcRotateCamera(
     BABYLON.Vector3.Zero(),
     scene
 );
+camera.viewport = new BABYLON.Viewport(0, 0, 6 / 5, 1);
 camera.attachControl(canvas, true);
 camera.lowerRadiusLimit = 15;
 camera.upperRadiusLimit = 40;
@@ -91,6 +101,10 @@ const features: PlanetFeature[] = [];
 const surfaceGuide = new BABYLON.TransformNode("surfaceGuide", scene);
 let surfaceGuideVisible = false;
 let activeFeature: PlanetFeature | null = null;
+let interactionMode: "explore" | "guide" = "explore";
+let guideFeatureIndex = 0;
+let guideTargetLocked = false;
+const reachedGuideFeatures = new Set<number>();
 const craterLabelSurfaceOffset = 0.15;
 
 function latLonToWorld(radius: number, latitudeDeg: number, longitudeDeg: number): BABYLON.Vector3 {
@@ -165,7 +179,59 @@ features.push(createFeature("Tycho Crater", "A large impact basin with bright ej
 features.push(createFeature("Copernicus", "A massive, highly visible impact crater with terraced walls and a central peak, located in the eastern Mare Imbrium region.", 9.6, 20.1, 93));
 features.push(createFeature("Kepler", "A classic rayed crater located between the Oceanus Procellarum and Mare Insularum, forming a well-known triad with Copernicus and Aristarchus.", 8.1, 38, 32));
 features.push(createFeature("Clavius", "One of the largest and oldest crater formations on the near side, notable for its vast plain and smaller overlapping crater chains.", -58.4, 14.4, 231));
-features.push(createFeature("Aristotoles", "a prominent, well-preserved lunar impact crater located in the northeastern quadrant of the Moon's near side along the southern edge of the Mare Frigoris (Sea of Cold).", 50.2, -17.4, 87));
+features.push(createFeature("Aristotoles", "A prominent, well-preserved lunar impact crater located in the northeastern quadrant of the Moon's near side along the southern edge of the Mare Frigoris (Sea of Cold).", 50.2, -17.4, 87));
+
+function getGuideFeature(): PlanetFeature | null {
+    return features[guideFeatureIndex] ?? null;
+}
+
+function updateGuideFeatureList() {
+    guideFeatureList.replaceChildren();
+
+    for (const [index, feature] of features.entries()) {
+        const item = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = feature.name;
+        button.classList.toggle("selected", interactionMode === "guide" && index === guideFeatureIndex);
+        button.classList.toggle("reached", interactionMode === "guide" && reachedGuideFeatures.has(index));
+        button.addEventListener("click", () => {
+            guideFeatureIndex = index;
+            guideTargetLocked = false;
+            activeFeature = null;
+            targetStatus.textContent = "";
+            hideInfo();
+            updateGuideFeatureList();
+        });
+        item.appendChild(button);
+        guideFeatureList.appendChild(item);
+    }
+}
+
+function setInteractionMode(mode: "explore" | "guide") {
+    interactionMode = mode;
+    if (mode === "guide") {
+        reachedGuideFeatures.clear();
+    }
+    guideTargetLocked = false;
+    targetStatus.textContent = "";
+    activeFeature = null;
+
+    guideArrow.style.display = mode === "guide" ? "block" : "none";
+    guideFeatureSelector.classList.toggle("visible", mode === "guide");
+    guideModeButton.classList.toggle("active", mode === "guide");
+    exploreModeButton.classList.toggle("active", mode === "explore");
+    updateGuideFeatureList();
+    hideInfo();
+}
+
+guideModeButton.addEventListener("click", () => {
+    setInteractionMode("guide");
+});
+
+exploreModeButton.addEventListener("click", () => {
+    setInteractionMode("explore");
+});
 
 createSurfaceGuide();
 surfaceGuide.setEnabled(surfaceGuideVisible);
@@ -180,7 +246,8 @@ window.addEventListener("keydown", (event) => {
 function showInfo(feature: PlanetFeature) {
     infoTitle.textContent = feature.name;
     infoText.textContent = feature.description;
-    infoCoordinates.textContent = `Latitude ${formatCoordinate(feature.latitude, "N", "S")}, Longitude ${formatCoordinate(feature.longitude, "W", "E")}`;
+    infoLatitude.textContent = `Latitude ${formatCoordinate(feature.latitude, "N", "S")}`;
+    infoLongitude.textContent = `Longitude ${formatCoordinate(feature.longitude, "W", "E")}`;
     infoDiameter.textContent = `Diameter ${feature.diameterKm} km`;
     infoPanel.classList.add("visible");
 }
@@ -191,7 +258,12 @@ function formatCoordinate(value: number, positiveDirection: string, negativeDire
 }
 
 function hideInfo() {
-    infoPanel.classList.remove("visible");
+    infoTitle.textContent = "Crater";
+    targetStatus.textContent = "";
+    infoText.textContent = "Aim at craters to inspect.";
+    infoLatitude.textContent = "Latitude : --";
+    infoLongitude.textContent = "Longitude : --";
+    infoDiameter.textContent = "Diameter : -- km";
 }
 
 function updateCraterLabel(feature: PlanetFeature | null) {
@@ -234,6 +306,44 @@ function updateCraterLabel(feature: PlanetFeature | null) {
     craterLabel.style.left = `${projected.x}px`;
     craterLabel.style.top = `${projected.y}px`;
     craterLabel.style.display = "block";
+}
+
+function updateGuideArrow(feature: PlanetFeature | null) {
+    if (interactionMode !== "guide" || !feature || guideTargetLocked) {
+        guideArrow.style.display = "none";
+        return;
+    }
+
+    const viewport = camera.viewport.toGlobal(
+        engine.getRenderWidth(),
+        engine.getRenderHeight()
+    );
+    const projected = BABYLON.Vector3.Project(
+        feature.worldPosition,
+        BABYLON.Matrix.Identity(),
+        scene.getTransformMatrix(),
+        viewport
+    );
+    const reticleCenterX = engine.getRenderWidth() * 0.6;
+    const reticleCenterY = engine.getRenderHeight() * 0.5;
+    const directionX = projected.x - reticleCenterX;
+    const directionY = projected.y - reticleCenterY;
+    const directionLength = Math.hypot(directionX, directionY);
+
+    if (directionLength < 1) {
+        guideArrow.style.display = "none";
+        return;
+    }
+
+    const offset = 84;
+    const arrowX = reticleCenterX + (directionX / directionLength) * offset;
+    const arrowY = reticleCenterY + (directionY / directionLength) * offset;
+    const angle = Math.atan2(directionY, directionX) * 180 / Math.PI;
+
+    guideArrow.style.left = `${arrowX}px`;
+    guideArrow.style.top = `${arrowY}px`;
+    guideArrow.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+    guideArrow.style.display = "block";
 }
 
 // Debug-friendly camera: keep the scene visible while designing the planet explorer.
@@ -282,14 +392,18 @@ function updateFeatureDetection() {
     }
 
     for (const feature of features) {
+        if (interactionMode === "guide" && feature !== getGuideFeature()) {
+            continue;
+        }
+
         const toFeature = feature.worldPosition.subtract(camera.position);
         const d = toFeature.length();
         const cameraForward = camera.getTarget().subtract(camera.position).normalize();
         const viewFactor = BABYLON.Vector3.Dot(cameraForward, toFeature.normalize());
 
         // Reliable visibility check: feature must be in front of the camera and within range.
-        const inRange = d < feature.triggerDistance && viewFactor > 0.98;
-        const centered = viewFactor > 0.99 && d < feature.triggerDistance * 0.5;
+        const inRange = d < feature.triggerDistance && viewFactor > 0.99;
+        const centered = viewFactor > 0.995 && d < feature.triggerDistance * 0.5;
 
         if (inRange) {
             isTargetActive = true;
@@ -313,14 +427,27 @@ function updateFeatureDetection() {
         reticle.style.opacity = isTargetLocked ? "1" : "0.7";
         reticle.style.transform = isTargetLocked ? "scale(1.35)" : "scale(1)";
         showInfo(nearestFeature);
+        targetStatus.textContent = isTargetLocked ? "" : "Move Closer";
         activeFeature = nearestFeature;
+
+        if (interactionMode === "guide" && isTargetLocked && !guideTargetLocked) {
+            guideTargetLocked = true;
+            reachedGuideFeatures.add(guideFeatureIndex);
+            updateGuideFeatureList();
+        }
     } else {
         reticle.classList.remove("active");
         reticle.classList.remove("locked");
-        reticle.style.opacity = "0";
-        reticle.style.transform = "scale(0.8)";
-        hideInfo();
-        activeFeature = null;
+        reticle.style.opacity = "0.5";
+        reticle.style.transform = "scale(1)";
+
+        if (interactionMode === "guide" && getGuideFeature()) {
+            targetStatus.textContent = guideTargetLocked ? "" : "Move Closer";
+            activeFeature = null;
+        } else {
+            hideInfo();
+            activeFeature = null;
+        }
     }
 }
 
@@ -330,6 +457,7 @@ scene.onBeforeRenderObservable.add(() => {
     updateSurfaceCamera();
     updateFeatureDetection();
     updateCraterLabel(activeFeature);
+    updateGuideArrow(getGuideFeature());
 });
 
 engine.runRenderLoop(() => {

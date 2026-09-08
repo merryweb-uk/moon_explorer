@@ -1,0 +1,42 @@
+[
+    {
+        "name": "Tycho Crater",
+        "description": "A large impact basin with bright ejecta rays.",
+        "latitude": -43.3,
+        "longitude": 11.2,
+        "diameterKm": 85,
+        "triggerDistance": 10
+    },
+    {
+        "name": "Copernicus",
+        "description": "A massive, highly visible lunar impact crater with terraced walls and a central peak, located in the eastern Mare Imbrium region.",
+        "latitude": 9.6,
+        "longitude": 20.1,
+        "diameterKm": 93,
+        "triggerDistance": 10
+    },
+    {
+        "name": "Kepler",
+        "description": "A classic rayed crater located between the Oceanus Procellarum and Mare Insularum, forming a well-known triad with Copernicus and Aristarchus.",
+        "latitude": 8.1,
+        "longitude": 38,
+        "diameterKm": 32,
+        "triggerDistance": 10
+    },
+    {
+        "name": "Clavius",
+        "description": "One of the largest and oldest crater formations on the near side, notable for its vast plain and smaller overlapping crater chains.",
+        "latitude": -58.4,
+        "longitude": 14.4,
+        "diameterKm": 231,
+        "triggerDistance": 10
+    },
+    {
+        "name": "Aristotoles",
+        "description": "A prominent, well-preserved lunar impact crater located in the northeastern quadrant of the Moon's near side along the southern edge of the Mare Frigoris (Sea of Cold).",
+        "latitude": 50.2,
+        "longitude": -17.4,
+        "diameterKm": 87,
+        "triggerDistance": 10
+    }
+]

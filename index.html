@@ -29,21 +29,99 @@
 
     #infoPanel {
       position: absolute;
-      right: 24px;
-      bottom: 24px;
-      width: 400px;
-      height: 200px;
+      left: 24px;
+      top: 5vh;
+      bottom: 5vh;
+      width: 20%;
+      height: auto;
+      box-sizing: border-box;
       background: rgba(15, 23, 42, 0.8);
       color: white;
       border: 1px solid rgba(148, 163, 184, 0.4);
       border-radius: 12px;
       padding: 16px 18px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      display: none;
+      display: block;
     }
 
-    #infoPanel.visible {
+    #modeControls {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      display: flex;
+      gap: 8px;
+    }
+
+    #modeControls button {
+      flex: 1;
+      padding: 10px 8px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      border-radius: 6px;
+      background: rgba(30, 41, 59, 0.9);
+      color: #dbeafe;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    #modeControls button.active {
+      background: #fcd34d;
+      border-color: #fcd34d;
+      color: #111827;
+    }
+
+    #guideFeatureSelector {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 85px;
+      display: none;
+      max-height: calc(100% - 170px);
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+    }
+
+    #guideFeatureSelector.visible {
       display: block;
+    }
+
+    #guideFeatureSelector p {
+      margin: 0 0 8px;
+      color: white;
+    }
+
+    #guideFeatureList {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #guideFeatureList button {
+      display: block;
+      width: 100%;
+      padding: 4px 0;
+      border: 0;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+    }
+
+    #guideFeatureList button.selected {
+      color: #f87171;
+    }
+
+    #guideFeatureList button.reached {
+      color: #4ade80;
+    }
+
+    #guideFeatureList button.reached::after {
+      content: "\2713";
+      float: right;
+      color: #4ade80;
+      font-weight: 700;
     }
 
     #infoTitle {
@@ -57,8 +135,28 @@
       color: #dbeafe;
     }
 
-    #infoCoordinates {
+    #targetStatus {
+      position: absolute;
+      left: 60%;
+      top: calc(50% + 72px);
+      transform: translateX(-50%);
+      color: #fc764d;
+      font-weight: 700;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    #infoLatitude {
       margin: 14px 0 0;
+      color: #fcd34d;
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+    }
+
+    #infoLongitude {
+      margin: 6px 0 0;
       color: #fcd34d;
       font-size: 0.9rem;
       letter-spacing: 0.04em;
@@ -73,13 +171,13 @@
 
     #reticle {
       position: absolute;
-      left: 50%;
+      left: 60%;
       top: 50%;
-      width: 150px;
-      height: 150px;
-      margin-left: -21px;
-      margin-top: -21px;
-      opacity: 0.5;
+      width: 120px;
+      height: 120px;
+      margin-left: -60px;
+      margin-top: -60px;
+      opacity: 0.8;
       transform: scale(1);
       transition: opacity 0.12s ease, transform 0.12s ease, filter 0.12s ease;
       pointer-events: none;
@@ -97,6 +195,18 @@
     #reticle.locked {
       transform: scale(1.1);
       filter: sepia(1) hue-rotate(90deg) saturate(8);
+    }
+
+    #guideArrow {
+      position: absolute;
+      display: none;
+      color: #fcd34d;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+      pointer-events: none;
+      z-index: 20;
     }
 
     #craterLabel {
@@ -119,13 +229,24 @@
   <canvas id="renderCanvas"></canvas>
 
   <div id="reticle"></div>
+  <div id="guideArrow">&gt;</div>
+  <div id="targetStatus"></div>
   <div id="craterLabel"></div>
 
   <div id="infoPanel">
-    <h2 id="infoTitle">Feature</h2>
-    <p id="infoText">Description</p>
-    <p id="infoCoordinates">Latitude --, Longitude --</p>
-    <p id="infoDiameter">Diameter -- km</p>
+    <h2 id="infoTitle">Crater</h2>
+    <p id="infoText">Aim at craters to inspect.</p>
+    <p id="infoLatitude">Latitude : --</p>
+    <p id="infoLongitude">Longitude : --</p>
+    <p id="infoDiameter">Diameter : -- km</p>
+    <div id="guideFeatureSelector">
+      <p>Select crater to find :</p>
+      <ul id="guideFeatureList"></ul>
+    </div>
+    <div id="modeControls">
+      <button id="guideModeButton" type="button">Guide Mode</button>
+      <button id="exploreModeButton" class="active" type="button">Explore Mode</button>
+    </div>
   </div>
 
   <script type="module" src="./moon_explorer.ts"></script>
