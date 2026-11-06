@@ -6,6 +6,8 @@ type PlanetFeature = {
     latitude: number;
     longitude: number;
     diameterKm: number;
+    depthKm: number;
+    ageGa: number;
     triggerDistance: number;
     worldPosition: BABYLON.Vector3;
 };
@@ -19,6 +21,8 @@ const infoLatitude = document.getElementById("infoLatitude") as HTMLParagraphEle
 const infoLongitude = document.getElementById("infoLongitude") as HTMLParagraphElement;
 
 const infoDiameter = document.getElementById("infoDiameter") as HTMLParagraphElement;
+const infoDepth = document.getElementById("infoDepth") as HTMLParagraphElement;
+const infoAge = document.getElementById("infoAge") as HTMLParagraphElement;
 const reticle = document.getElementById("reticle") as HTMLDivElement;
 const guideArrow = document.getElementById("guideArrow") as HTMLDivElement;
 const targetStatus = document.getElementById("targetStatus") as HTMLDivElement;
@@ -160,7 +164,7 @@ function createSurfaceGuide() {
     }
 }
 
-function createFeature(name: string, description: string, lat: number, lon: number, diameterKm: number): PlanetFeature {
+function createFeature(name: string, description: string, lat: number, lon: number, diameterKm: number, depthKm: number, ageGa: number): PlanetFeature {
     const worldPosition = latLonToWorld(planetRadius + 0.5, lat, lon);
 
     return {
@@ -169,17 +173,24 @@ function createFeature(name: string, description: string, lat: number, lon: numb
         latitude: lat,
         longitude: lon,
         diameterKm,
+        depthKm,
+        ageGa,
         triggerDistance: 10,
         worldPosition
     };
 }
 
 // Example features
-features.push(createFeature("Tycho Crater", "A large impact basin with bright ejecta rays.", -43.3, 11.2, 85));
-features.push(createFeature("Copernicus", "A massive, highly visible impact crater with terraced walls and a central peak, located in the eastern Mare Imbrium region.", 9.6, 20.1, 93));
-features.push(createFeature("Kepler", "A classic rayed crater located between the Oceanus Procellarum and Mare Insularum, forming a well-known triad with Copernicus and Aristarchus.", 8.1, 38, 32));
-features.push(createFeature("Clavius", "One of the largest and oldest crater formations on the near side, notable for its vast plain and smaller overlapping crater chains.", -58.4, 14.4, 231));
-features.push(createFeature("Aristotoles", "A prominent, well-preserved lunar impact crater located in the northeastern quadrant of the Moon's near side along the southern edge of the Mare Frigoris (Sea of Cold).", 50.2, -17.4, 87));
+features.push(createFeature("Tycho Crater", "A large impact basin with bright ejecta rays.", -43.3, 11.2, 85, 4.8, 0.108));
+features.push(createFeature("Copernicus", "A massive, highly visible impact crater with terraced walls and a central peak, located in the eastern Mare Imbrium region.", 9.6, 20.1, 93, 3.8, 0.8));
+features.push(createFeature("Kepler", "A classic rayed crater located between the Oceanus Procellarum and Mare Insularum, forming a well-known triad with Copernicus and Aristarchus.", 8.1, 38, 32, 2.6, 0.8));
+features.push(createFeature("Clavius", "One of the largest and oldest crater formations on the near side, notable for its vast plain and smaller overlapping crater chains.", -58.4, 14.4, 231, 3.5, 3.9));
+features.push(createFeature("Aristotoles", "A prominent, well-preserved lunar impact crater located in the northeastern quadrant of the Moon's near side along the southern edge of the Mare Frigoris (Sea of Cold).", 50.2, -17.4, 87, 3.3, 3.9));
+features.push(createFeature("Eudoxus", "A prominent lunar impact crater featuring a terraced interior rim, level floor and a cluster of central low hills composed of pure crystalline plagioclase.", 44.3, -16.3, 70, 3.4, 1.3));
+features.push(createFeature("Plato", "A large lava-filled impact crater known for its dark, smooth floor that stands out against the brighter surrounding mountainous rim. It is located on the northeastern shore of the Mare Imbrium (Sea of Showers).", 51.6, 9.3, 101, 1.25, 3.8));
+features.push(createFeature("Archimedes", "An ancient lava-filled impact crater with a smooth dark floor and surrounding crater walls that stand tall above the eastern edge of the Mare Imbrium (Sea of Showers).", 29.7, 4, 82, 1.85, 3.5));
+features.push(createFeature("Gassendi", "A large, complex impact crater located at the northern edge of the Mare Humorum (Sea of Moisture). Its fractured lava-filled floor contains several central peaks that rise to a height of 1.2km.", -17.55, 40, 112, 1.42, 3.75));
+features.push(createFeature("Bullialdus", "A magnificent but complex impact crater located toward the western edge of the Mare Nubium (Sea of Clouds). It stands out boldly due to its pristine, sharp structure and its complete isolation on the flat volcanic plains. Its central multi-peaked mountain system rises to more than 1.1km above the crater floor.", -20.7, 22.2, 61, 3.5, 2.1));
 
 function getGuideFeature(): PlanetFeature | null {
     return features[guideFeatureIndex] ?? null;
@@ -246,9 +257,11 @@ window.addEventListener("keydown", (event) => {
 function showInfo(feature: PlanetFeature) {
     infoTitle.textContent = feature.name;
     infoText.textContent = feature.description;
-    infoLatitude.textContent = `Latitude ${formatCoordinate(feature.latitude, "N", "S")}`;
-    infoLongitude.textContent = `Longitude ${formatCoordinate(feature.longitude, "W", "E")}`;
-    infoDiameter.textContent = `Diameter ${feature.diameterKm} km`;
+    infoLatitude.textContent = `Latitude: ${formatCoordinate(feature.latitude, "N", "S")}`;
+    infoLongitude.textContent = `Longitude: ${formatCoordinate(feature.longitude, "W", "E")}`;
+    infoDiameter.textContent = `Diameter: ${feature.diameterKm} km`;
+    infoDepth.textContent = `Depth: ${feature.depthKm} km`;
+    infoAge.textContent = `Age: ${feature.ageGa} billion years`;
     infoPanel.classList.add("visible");
 }
 
@@ -264,6 +277,8 @@ function hideInfo() {
     infoLatitude.textContent = "Latitude : --";
     infoLongitude.textContent = "Longitude : --";
     infoDiameter.textContent = "Diameter : -- km";
+    infoDepth.textContent = "Depth : -- km";
+    infoAge.textContent = "Age : -- billion years";
 }
 
 function updateCraterLabel(feature: PlanetFeature | null) {
