@@ -1,0 +1,112 @@
+[
+    {
+        "name": "Tycho",
+        "description": "A young impact basin with bright ejecta rays that stretch 1,500 – 2,600 km (around 1,600 miles) across the lunar surface.",
+        "latitude": -43.3,
+        "longitude": 11.2,
+        "diameterKm": 85,
+        "depthKm": 4.8,
+        "ageGa": 0.108,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Copernicus",
+        "description": "A massive, highly visible lunar impact crater with terraced walls and a central peak, located in the eastern Mare Imbrium region.",
+        "latitude": 9.6,
+        "longitude": 20.1,
+        "diameterKm": 93,
+        "depthKm": 3.8,
+        "ageGa": 0.8,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Kepler",
+        "description": "A classic rayed crater located between the Oceanus Procellarum and Mare Insularum, forming a well-known triad with Copernicus and Aristarchus.",
+        "latitude": 8.1,
+        "longitude": 38,
+        "diameterKm": 32,
+        "depthKm": 2.6,
+        "ageGa": 0.8,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Clavius",
+        "description": "One of the largest and oldest crater formations on the near side, notable for its vast plain and smaller overlapping crater chains.",
+        "latitude": -58.4,
+        "longitude": 14.4,
+        "diameterKm": 231,
+        "depthKm": 3.5,
+        "ageGa": 3.9,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Aristotoles",
+        "description": "A prominent, well-preserved lunar impact crater located in the northeastern quadrant of the Moon's near side along the southern edge of the Mare Frigoris (Sea of Cold).",
+        "latitude": 50.2,
+        "longitude": -17.4,
+        "diameterKm": 87,
+        "depthKm": 3.3,
+        "ageGa": 3.9,
+        "tags": ["scientist-named","greek-origin"]
+    },
+    {
+        "name": "Eudoxus",
+        "description": "A prominent lunar impact crater featuring a terraced interior rim, level floor and a cluster of central low hills composed of pure crystalline plagioclase.",
+        "latitude": 44.3,
+        "longitude": -16.3,
+        "diameterKm": 70,
+        "depthKm": 3.4,
+        "ageGa": 1.3,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Plato",
+        "description": "A large lava-filled impact crater known for its dark, smooth floor that stands out against the brighter surrounding mountainous rim. It is located on the northeastern shore of the Mare Imbrium (Sea of Showers).",
+        "latitude": 51.6,
+        "longitude": 9.3,
+        "diameterKm": 101,
+        "depthKm": 1.25,
+        "ageGa": 3.8,
+        "tags": ["scientist-named","greek-origin"]
+    },
+    {
+        "name": "Archimedes",
+        "description": "An ancient lava-filled impact crater with a smooth dark floor and surrounding crater walls that stand tall above the eastern edge of the Mare Imbrium (Sea of Showers).",
+        "latitude": 29.7,
+        "longitude": 4,
+        "diameterKm": 82,
+        "depthKm": 1.85,
+        "ageGa": 3.5,
+        "tags": ["scientist-named","greek-origin"]
+    },
+    {
+        "name": "Gassendi",
+        "description": "A large, complex impact crater located at the northern edge of the Mare Humorum (Sea of Moisture). Its fractured lava-filled floor contains several central peaks that rise to a height of 1.2km.",
+        "latitude": -17.55,
+        "longitude": 40,
+        "diameterKm": 112,
+        "depthKm": 1.42,
+        "ageGa": 3.75,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Bullialdus",
+        "description": "A magnificent but complex impact crater located toward the western edge of the Mare Nubium (Sea of Clouds). It stands out boldly due to its pristine, sharp structure and its complete isolation on the flat volcanic plains. Its central multi-peaked mountain system rises to more than 1.1km above the crater floor.",
+        "latitude": -20.7,
+        "longitude": 22.2,
+        "diameterKm": 61,
+        "depthKm": 3.5,
+        "ageGa": 2.1,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Albategnius",
+        "description": "An ancient lava-filled impact crater named after the renowned 9th-century Arab astronomer and mathematician Al-Battani. Its shape is scarred by a 44km crater named Klein, which breaks through its southwestern wall.",
+        "latitude": -11.2,
+        "longitude": -4.1,
+        "diameterKm": 131,
+        "depthKm": 3.2,
+        "ageGa": 2.1,
+        "tags": ["scientist-named","islamic-origin"]
+    }
+]

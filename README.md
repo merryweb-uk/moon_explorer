@@ -40,33 +40,69 @@ npm run build
 - `E`: zoom in
 - `G`: show or hide the positioning guide
 
+Guide Mode randomly selects up to 10 craters from the active theme to find. If the theme contains fewer than 10 craters, all of them are included.
+
 Interact with the page once before locking a target so the browser permits sound playback.
 
 ## Adding Features
 
-Feature data is defined in `moongame.ts` using `createFeature()`:
+Crater data is defined in `public/craters.json`:
 
-```typescript
-features.push(createFeature(
-    "Example Crater",
-    "A short description of the feature.",
-    -12.5,
-    42.3,
-    35
-));
+```json
+{
+    "name": "Example Crater",
+    "description": "A short description of the feature.",
+    "latitude": -12.5,
+    "longitude": 42.3,
+    "diameterKm": 35,
+    "depthKm": 2.5,
+    "ageGa": 1.2
+}
 ```
 
-The arguments are:
+The fields are:
 
 1. Feature name
 2. Description
 3. Latitude in degrees
 4. Longitude in degrees
 5. Diameter in kilometres
+6. Depth in kilometres
+7. Age in billions of years
 
 Latitude is displayed as `N` or `S`. Longitude is displayed using this project's convention: positive values are `W` and negative values are `E`.
 
 The surface guide uses the same coordinate conversion as the feature markers, so it can be enabled with `G` while positioning new features.
+
+Feature data is validated when the application loads. The complete file is rejected if a feature has missing or invalid text, non-numeric measurements, coordinates outside the valid latitude/longitude ranges, or negative diameter, depth, or age values. The specific validation error is written to the browser console and the application displays a feature-data loading error instead of using a partially invalid catalogue.
+
+## Themes
+
+Themes are listed in `public/themes.json`. A theme can filter the canonical `public/craters.json` dataset or load a separate crater file:
+
+```json
+{
+    "id": "large-craters",
+    "name": "Craters over 100 km",
+    "filter": {
+        "diameterKm": {
+            "min": 100
+        }
+    }
+}
+```
+
+Filter themes can use `diameterKm.min`, `diameterKm.max`, and `tags`. A feature matches a theme if it has at least one of the requested tags. File-backed themes use a `file` property instead:
+
+```json
+{
+    "id": "featured-craters",
+    "name": "Featured Craters",
+    "file": "./themes/featured-craters.json"
+}
+```
+
+The theme selector is displayed in the top-right of the application. New themes can be added to `themes.json` or removed from it without changing the TypeScript code. Theme data uses the same validation rules as the canonical feature dataset.
 
 ## Replacing Assets
 
@@ -77,7 +113,7 @@ The current assets are stored in the project root:
 - `reticle.png`: transparent target reticle
 - `target_lock.mp3`: sound played when a target becomes locked
 
-Keep the filenames the same when replacing assets, or update the corresponding paths in `moongame.ts` and `index.html`.
+Keep the filenames the same when replacing assets, or update the corresponding paths in `moon_explorer.ts` and `index.html`.
 
 ## GitHub Pages
 

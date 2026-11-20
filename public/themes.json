@@ -1,0 +1,36 @@
+[
+    {
+        "id": "all-craters",
+        "name": "All Craters"
+    },
+    {
+        "id": "large-craters",
+        "name": "Craters over 100 km",
+        "filter": {
+            "diameterKm": {
+                "min": 100
+            }
+        }
+    },
+    {
+        "id": "scientist-named-craters",
+        "name": "Craters named after Scientists",
+        "filter": {
+            "tags": ["scientist-named"]
+        }
+    },
+    {
+        "id": "greek-origin",
+        "name": "Crater names of Greek origin",
+        "filter": {
+            "tags": ["greek-origin"]
+        }
+    },
+    {
+        "id": "islamic-origin",
+        "name": "Crater names of Islamic origin",
+        "filter": {
+            "tags": ["islamic-origin"]
+        }
+    }
+]

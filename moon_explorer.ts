@@ -8,8 +8,23 @@ type PlanetFeature = {
     diameterKm: number;
     depthKm: number;
     ageGa: number;
-    triggerDistance: number;
+    tags: string[];
     worldPosition: BABYLON.Vector3;
+};
+
+type FeatureData = Omit<PlanetFeature, "worldPosition">;
+type ThemeFilter = {
+    diameterKm?: {
+        min?: number;
+        max?: number;
+    };
+    tags?: string[];
+};
+type ThemeDefinition = {
+    id: string;
+    name: string;
+    file?: string;
+    filter?: ThemeFilter;
 };
 
 const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
@@ -31,9 +46,11 @@ const guideModeButton = document.getElementById("guideModeButton") as HTMLButton
 const exploreModeButton = document.getElementById("exploreModeButton") as HTMLButtonElement;
 const guideFeatureSelector = document.getElementById("guideFeatureSelector") as HTMLDivElement;
 const guideFeatureList = document.getElementById("guideFeatureList") as HTMLUListElement;
+const themeSelector = document.getElementById("themeSelector") as HTMLSelectElement;
 
 const engine = new BABYLON.Engine(canvas, true);
 const scene = new BABYLON.Scene(engine);
+const featureTriggerDistance = 10;
 
 scene.clearColor = new BABYLON.Color4(0.02, 0.03, 0.08, 1);
 
@@ -100,16 +117,19 @@ window.addEventListener("keyup", (event) => {
 });
 
 // Build feature markers
-const features: PlanetFeature[] = [];
+let features: PlanetFeature[] = [];
 
 const surfaceGuide = new BABYLON.TransformNode("surfaceGuide", scene);
 let surfaceGuideVisible = false;
 let activeFeature: PlanetFeature | null = null;
 let interactionMode: "explore" | "guide" = "explore";
 let guideFeatureIndex = 0;
+let guideFeatures: PlanetFeature[] = [];
 let guideTargetLocked = false;
 const reachedGuideFeatures = new Set<number>();
 const craterLabelSurfaceOffset = 0.15;
+const maxGuideFeatures = 10;
+let surfaceGuideMaterial: BABYLON.StandardMaterial | null = null;
 
 function latLonToWorld(radius: number, latitudeDeg: number, longitudeDeg: number): BABYLON.Vector3 {
     const lat = BABYLON.Tools.ToRadians(latitudeDeg);
@@ -150,56 +170,252 @@ function createSurfaceGuide() {
     guideMesh.alpha = 0.28;
     guideMesh.parent = surfaceGuide;
 
-    const guideMaterial = new BABYLON.StandardMaterial("surfaceGuideMarkers", scene);
-    guideMaterial.diffuseColor = new BABYLON.Color3(1, 0.75, 0.15);
-    guideMaterial.emissiveColor = new BABYLON.Color3(0.35, 0.2, 0.02);
+    surfaceGuideMaterial = new BABYLON.StandardMaterial("surfaceGuideMarkers", scene);
+    surfaceGuideMaterial.diffuseColor = new BABYLON.Color3(1, 0.75, 0.15);
+    surfaceGuideMaterial.emissiveColor = new BABYLON.Color3(0.35, 0.2, 0.02);
 
     for (const feature of features) {
         const marker = BABYLON.MeshBuilder.CreateSphere(`guide-${feature.name}`, {
             diameter: 0.18
         }, scene);
         marker.position = latLonToWorld(planetRadius + 0.16, feature.latitude, feature.longitude);
-        marker.material = guideMaterial;
+        marker.material = surfaceGuideMaterial;
         marker.parent = surfaceGuide;
     }
 }
 
-function createFeature(name: string, description: string, lat: number, lon: number, diameterKm: number, depthKm: number, ageGa: number): PlanetFeature {
-    const worldPosition = latLonToWorld(planetRadius + 0.5, lat, lon);
+function clearSurfaceGuide() {
+    for (const mesh of surfaceGuide.getChildMeshes()) {
+        mesh.dispose();
+    }
+    surfaceGuideMaterial?.dispose();
+    surfaceGuideMaterial = null;
+}
 
+function createFeature(data: FeatureData): PlanetFeature {
     return {
-        name,
-        description,
-        latitude: lat,
-        longitude: lon,
-        diameterKm,
-        depthKm,
-        ageGa,
-        triggerDistance: 10,
-        worldPosition
+        ...data,
+        worldPosition: latLonToWorld(planetRadius + 0.5, data.latitude, data.longitude)
     };
 }
 
-// Example features
-features.push(createFeature("Tycho Crater", "A large impact basin with bright ejecta rays.", -43.3, 11.2, 85, 4.8, 0.108));
-features.push(createFeature("Copernicus", "A massive, highly visible impact crater with terraced walls and a central peak, located in the eastern Mare Imbrium region.", 9.6, 20.1, 93, 3.8, 0.8));
-features.push(createFeature("Kepler", "A classic rayed crater located between the Oceanus Procellarum and Mare Insularum, forming a well-known triad with Copernicus and Aristarchus.", 8.1, 38, 32, 2.6, 0.8));
-features.push(createFeature("Clavius", "One of the largest and oldest crater formations on the near side, notable for its vast plain and smaller overlapping crater chains.", -58.4, 14.4, 231, 3.5, 3.9));
-features.push(createFeature("Aristotoles", "A prominent, well-preserved lunar impact crater located in the northeastern quadrant of the Moon's near side along the southern edge of the Mare Frigoris (Sea of Cold).", 50.2, -17.4, 87, 3.3, 3.9));
-features.push(createFeature("Eudoxus", "A prominent lunar impact crater featuring a terraced interior rim, level floor and a cluster of central low hills composed of pure crystalline plagioclase.", 44.3, -16.3, 70, 3.4, 1.3));
-features.push(createFeature("Plato", "A large lava-filled impact crater known for its dark, smooth floor that stands out against the brighter surrounding mountainous rim. It is located on the northeastern shore of the Mare Imbrium (Sea of Showers).", 51.6, 9.3, 101, 1.25, 3.8));
-features.push(createFeature("Archimedes", "An ancient lava-filled impact crater with a smooth dark floor and surrounding crater walls that stand tall above the eastern edge of the Mare Imbrium (Sea of Showers).", 29.7, 4, 82, 1.85, 3.5));
-features.push(createFeature("Gassendi", "A large, complex impact crater located at the northern edge of the Mare Humorum (Sea of Moisture). Its fractured lava-filled floor contains several central peaks that rise to a height of 1.2km.", -17.55, 40, 112, 1.42, 3.75));
-features.push(createFeature("Bullialdus", "A magnificent but complex impact crater located toward the western edge of the Mare Nubium (Sea of Clouds). It stands out boldly due to its pristine, sharp structure and its complete isolation on the flat volcanic plains. Its central multi-peaked mountain system rises to more than 1.1km above the crater floor.", -20.7, 22.2, 61, 3.5, 2.1));
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isNonEmptyStringArray(value: unknown): value is string[] {
+    return Array.isArray(value)
+        && value.every((item) => typeof item === "string" && item.trim() !== "");
+}
+
+function readFiniteNumber(entry: Record<string, unknown>, field: string, label: string): number {
+    const value = entry[field];
+    if (typeof value !== "number" || !Number.isFinite(value)) {
+        throw new Error(`Feature${label} has an invalid ${field}.`);
+    }
+    return value;
+}
+
+function validateFeatureData(value: unknown): FeatureData[] {
+    if (!Array.isArray(value)) {
+        throw new Error("Feature data must be an array.");
+    }
+
+    return value.map((entry, index) => {
+        const entryNumber = index + 1;
+        if (!isRecord(entry)) {
+            throw new Error(`Feature ${entryNumber} must be an object.`);
+        }
+
+        const name = entry.name;
+        const label = typeof name === "string" && name.trim() !== ""
+            ? ` "${name}"`
+            : ` ${entryNumber}`;
+
+        if (typeof name !== "string" || name.trim() === "") {
+            throw new Error(`Feature ${entryNumber} must have a non-empty name.`);
+        }
+
+        const description = entry.description;
+        if (typeof description !== "string" || description.trim() === "") {
+            throw new Error(`Feature${label} must have a non-empty description.`);
+        }
+
+        const latitude = readFiniteNumber(entry, "latitude", label);
+        if (latitude < -90 || latitude > 90) {
+            throw new Error(`Feature${label} has an invalid latitude: ${latitude}.`);
+        }
+
+        const longitude = readFiniteNumber(entry, "longitude", label);
+        if (longitude < -180 || longitude > 180) {
+            throw new Error(`Feature${label} has an invalid longitude: ${longitude}.`);
+        }
+
+        const diameterKm = readFiniteNumber(entry, "diameterKm", label);
+        const depthKm = readFiniteNumber(entry, "depthKm", label);
+        const ageGa = readFiniteNumber(entry, "ageGa", label);
+        for (const [field, numericValue] of [
+            ["diameterKm", diameterKm],
+            ["depthKm", depthKm],
+            ["ageGa", ageGa]
+        ] as const) {
+            if (numericValue < 0) {
+                throw new Error(`Feature${label} has a negative ${field}.`);
+            }
+        }
+
+        const tags = entry.tags ?? [];
+        if (!isNonEmptyStringArray(tags)) {
+            throw new Error(`Feature${label} has invalid tags.`);
+        }
+
+        return {
+            name,
+            description,
+            latitude,
+            longitude,
+            diameterKm,
+            depthKm,
+            ageGa,
+            tags
+        };
+    });
+}
+
+function validateThemes(value: unknown): ThemeDefinition[] {
+    if (!Array.isArray(value)) {
+        throw new Error("Theme data must be an array.");
+    }
+
+    const themeIds = new Set<string>();
+    return value.map((entry, index) => {
+        const entryNumber = index + 1;
+        if (!isRecord(entry)) {
+            throw new Error(`Theme ${entryNumber} must be an object.`);
+        }
+
+        const id = entry.id;
+        if (typeof id !== "string" || id.trim() === "") {
+            throw new Error(`Theme ${entryNumber} must have a non-empty id.`);
+        }
+        if (themeIds.has(id)) {
+            throw new Error(`Theme "${id}" is defined more than once.`);
+        }
+        themeIds.add(id);
+
+        const name = entry.name;
+        if (typeof name !== "string" || name.trim() === "") {
+            throw new Error(`Theme "${id}" must have a non-empty name.`);
+        }
+
+        const file = entry.file;
+        if (file !== undefined && (typeof file !== "string" || file.trim() === "")) {
+            throw new Error(`Theme "${id}" has an invalid file.`);
+        }
+
+        const rawFilter = entry.filter;
+        if (file !== undefined && rawFilter !== undefined) {
+            throw new Error(`Theme "${id}" cannot define both file and filter.`);
+        }
+
+        let filter: ThemeFilter | undefined;
+        if (rawFilter !== undefined) {
+            if (!isRecord(rawFilter)) {
+                throw new Error(`Theme "${id}" has an invalid filter.`);
+            }
+
+            const rawDiameter = rawFilter.diameterKm;
+            if (rawDiameter !== undefined && !isRecord(rawDiameter)) {
+                throw new Error(`Theme "${id}" has an invalid diameter filter.`);
+            }
+
+            const min = rawDiameter?.min;
+            const max = rawDiameter?.max;
+            if (min !== undefined && (typeof min !== "number" || !Number.isFinite(min))) {
+                throw new Error(`Theme "${id}" has an invalid minimum diameter filter.`);
+            }
+            if (max !== undefined && (typeof max !== "number" || !Number.isFinite(max))) {
+                throw new Error(`Theme "${id}" has an invalid maximum diameter filter.`);
+            }
+            if (min !== undefined && max !== undefined && min > max) {
+                throw new Error(`Theme "${id}" has a diameter filter with min greater than max.`);
+            }
+
+            const tags = rawFilter.tags;
+            if (tags !== undefined && (!Array.isArray(tags) || tags.some((tag) => typeof tag !== "string" || tag.trim() === ""))) {
+                throw new Error(`Theme "${id}" has invalid tag filters.`);
+            }
+
+            filter = {
+                ...(rawDiameter === undefined ? {} : { diameterKm: { min, max } }),
+                ...(tags === undefined ? {} : { tags })
+            };
+        }
+
+        return {
+            id,
+            name,
+            ...(file === undefined ? {} : { file }),
+            ...(filter === undefined ? {} : { filter })
+        };
+    });
+}
+
+async function loadJson(url: string): Promise<unknown> {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Data request for ${url} failed with status ${response.status}.`);
+    }
+
+    return response.json();
+}
+
+async function loadFeatureData(file: string): Promise<FeatureData[]> {
+    return validateFeatureData(await loadJson(file));
+}
+
+function filterFeatureData(featureData: FeatureData[], filter: ThemeFilter | undefined): FeatureData[] {
+    if (!filter) {
+        return featureData;
+    }
+
+    return featureData.filter((feature) => {
+        const diameterFilter = filter.diameterKm;
+        if (diameterFilter?.min !== undefined && feature.diameterKm < diameterFilter.min) {
+            return false;
+        }
+        if (diameterFilter?.max !== undefined && feature.diameterKm > diameterFilter.max) {
+            return false;
+        }
+        if (filter.tags && !filter.tags.some((tag) => feature.tags.includes(tag))) {
+            return false;
+        }
+        return true;
+    });
+}
 
 function getGuideFeature(): PlanetFeature | null {
-    return features[guideFeatureIndex] ?? null;
+    return guideFeatures[guideFeatureIndex] ?? null;
+}
+
+function selectGuideFeatures() {
+    const shuffledFeatures = [...features];
+    for (let index = shuffledFeatures.length - 1; index > 0; index--) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [shuffledFeatures[index], shuffledFeatures[randomIndex]] = [
+            shuffledFeatures[randomIndex],
+            shuffledFeatures[index]
+        ];
+    }
+
+    guideFeatures = shuffledFeatures.slice(0, maxGuideFeatures);
+    guideFeatureIndex = 0;
 }
 
 function updateGuideFeatureList() {
     guideFeatureList.replaceChildren();
 
-    for (const [index, feature] of features.entries()) {
+    for (const [index, feature] of guideFeatures.entries()) {
         const item = document.createElement("li");
         const button = document.createElement("button");
         button.type = "button";
@@ -220,9 +436,13 @@ function updateGuideFeatureList() {
 }
 
 function setInteractionMode(mode: "explore" | "guide") {
+    const modeChanged = interactionMode !== mode;
     interactionMode = mode;
-    if (mode === "guide") {
+    if (mode === "guide" && modeChanged) {
+        selectGuideFeatures();
         reachedGuideFeatures.clear();
+    } else if (mode === "explore") {
+        guideFeatures = [];
     }
     guideTargetLocked = false;
     targetStatus.textContent = "";
@@ -244,8 +464,84 @@ exploreModeButton.addEventListener("click", () => {
     setInteractionMode("explore");
 });
 
-createSurfaceGuide();
-surfaceGuide.setEnabled(surfaceGuideVisible);
+const featureDataCache = new Map<string, FeatureData[]>();
+let themesById = new Map<string, ThemeDefinition>();
+let activeThemeId: string | null = null;
+
+async function switchTheme(theme: ThemeDefinition) {
+    themeSelector.disabled = true;
+    targetStatus.textContent = `Loading ${theme.name}...`;
+
+    try {
+        const sourceFile = theme.file ?? "./craters.json";
+        let sourceData = featureDataCache.get(sourceFile);
+        if (!sourceData) {
+            sourceData = await loadFeatureData(sourceFile);
+            featureDataCache.set(sourceFile, sourceData);
+        }
+
+        features = filterFeatureData(sourceData, theme.filter).map(createFeature);
+        activeThemeId = theme.id;
+        if (interactionMode === "guide") {
+            selectGuideFeatures();
+        } else {
+            guideFeatures = [];
+        }
+        guideTargetLocked = false;
+        reachedGuideFeatures.clear();
+        activeFeature = null;
+        reticle.classList.remove("active", "locked");
+        reticle.style.opacity = "0.5";
+        reticle.style.transform = "scale(1)";
+        hideInfo();
+
+        clearSurfaceGuide();
+        createSurfaceGuide();
+        surfaceGuide.setEnabled(surfaceGuideVisible);
+        updateGuideFeatureList();
+    } finally {
+        themeSelector.disabled = false;
+    }
+}
+
+async function initializeThemes() {
+    const themes = validateThemes(await loadJson("./themes.json"));
+    if (themes.length === 0) {
+        throw new Error("Theme data must contain at least one theme.");
+    }
+
+    themesById = new Map(themes.map((theme) => [theme.id, theme]));
+    themeSelector.replaceChildren();
+    for (const theme of themes) {
+        const option = document.createElement("option");
+        option.value = theme.id;
+        option.textContent = theme.name;
+        themeSelector.appendChild(option);
+    }
+
+    themeSelector.disabled = false;
+    await switchTheme(themes[0]);
+}
+
+themeSelector.addEventListener("change", () => {
+    const theme = themesById.get(themeSelector.value);
+    if (!theme) {
+        return;
+    }
+
+    void switchTheme(theme).catch((error: unknown) => {
+        console.error("Theme could not be loaded.", error);
+        targetStatus.textContent = "Theme could not be loaded.";
+        if (activeThemeId) {
+            themeSelector.value = activeThemeId;
+        }
+    });
+});
+
+void initializeThemes().catch((error: unknown) => {
+    console.error("Themes could not be loaded.", error);
+    targetStatus.textContent = "Themes could not be loaded.";
+});
 
 window.addEventListener("keydown", (event) => {
     if (event.code === "KeyG") {
@@ -417,8 +713,8 @@ function updateFeatureDetection() {
         const viewFactor = BABYLON.Vector3.Dot(cameraForward, toFeature.normalize());
 
         // Reliable visibility check: feature must be in front of the camera and within range.
-        const inRange = d < feature.triggerDistance && viewFactor > 0.99;
-        const centered = viewFactor > 0.995 && d < feature.triggerDistance * 0.5;
+        const inRange = d < featureTriggerDistance && viewFactor > 0.99;
+        const centered = viewFactor > 0.995 && d < featureTriggerDistance * 0.5;
 
         if (inRange) {
             isTargetActive = true;
