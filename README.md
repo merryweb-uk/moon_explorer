@@ -9,7 +9,9 @@ A small interactive Moon surface explorer built with Babylon.js and TypeScript. 
 - Feature detection based on camera distance and viewing direction
 - Target reticle with active and locked states
 - Lock sound using `target_lock.mp3`
-- Information panel with feature description, coordinates, and diameter
+- Information panel with feature description, coordinates, diameter, depth, and age
+- JSON-backed crater catalogue with runtime validation
+- Switchable filter-based and file-backed themes
 - Optional latitude/longitude surface guide for positioning features
 - GitHub Pages deployment through GitHub Actions
 
@@ -49,15 +51,18 @@ Interact with the page once before locking a target so the browser permits sound
 Crater data is defined in `public/craters.json`:
 
 ```json
-{
-    "name": "Example Crater",
-    "description": "A short description of the feature.",
-    "latitude": -12.5,
-    "longitude": 42.3,
-    "diameterKm": 35,
-    "depthKm": 2.5,
-    "ageGa": 1.2
-}
+[
+    {
+        "name": "Example Crater",
+        "description": "A short description of the feature.",
+        "latitude": -12.5,
+        "longitude": 42.3,
+        "diameterKm": 35,
+        "depthKm": 2.5,
+        "ageGa": 1.2,
+        "tags": ["example"]
+    }
+]
 ```
 
 The fields are:
@@ -69,12 +74,13 @@ The fields are:
 5. Diameter in kilometres
 6. Depth in kilometres
 7. Age in billions of years
+8. Optional tags used by filter-based themes
 
 Latitude is displayed as `N` or `S`. Longitude is displayed using this project's convention: positive values are `W` and negative values are `E`.
 
 The surface guide uses the same coordinate conversion as the feature markers, so it can be enabled with `G` while positioning new features.
 
-Feature data is validated when the application loads. The complete file is rejected if a feature has missing or invalid text, non-numeric measurements, coordinates outside the valid latitude/longitude ranges, or negative diameter, depth, or age values. The specific validation error is written to the browser console and the application displays a feature-data loading error instead of using a partially invalid catalogue.
+Feature data is validated when the application loads. The complete file is rejected if a feature has missing or invalid text, non-numeric measurements, invalid tags, coordinates outside the valid latitude/longitude ranges, or negative diameter, depth, or age values. The specific validation error is written to the browser console and the application displays a feature-data loading error instead of using a partially invalid catalogue.
 
 ## Themes
 
@@ -102,16 +108,16 @@ Filter themes can use `diameterKm.min`, `diameterKm.max`, and `tags`. A feature 
 }
 ```
 
-The theme selector is displayed in the top-right of the application. New themes can be added to `themes.json` or removed from it without changing the TypeScript code. Theme data uses the same validation rules as the canonical feature dataset.
+The theme selector is displayed in the top-right of the application. The default theme is **All Craters**. New themes can be added to `themes.json` or removed from it without changing the TypeScript code. Theme data uses the same validation rules as the canonical crater dataset. When a theme fails to load, the previously active theme remains selected.
 
 ## Replacing Assets
 
-The current assets are stored in the project root:
+The current assets are stored in `public/`:
 
-- `moon_8k.jpg`: diffuse Moon texture
-- `moon_8k_n.jpg`: Moon normal map
-- `reticle.png`: transparent target reticle
-- `target_lock.mp3`: sound played when a target becomes locked
+- `public/moon_8k.jpg`: diffuse Moon texture
+- `public/moon_8k_n.jpg`: Moon normal map
+- `public/reticle.png`: transparent target reticle
+- `public/target_lock.mp3`: sound played when a target becomes locked
 
 Keep the filenames the same when replacing assets, or update the corresponding paths in `moon_explorer.ts` and `index.html`.
 
