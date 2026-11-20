@@ -12,6 +12,7 @@ A small interactive Moon surface explorer built with Babylon.js and TypeScript. 
 - Information panel with feature description, coordinates, diameter, depth, and age
 - JSON-backed crater catalogue with runtime validation
 - Switchable filter-based and file-backed themes
+- Pulsating texture-loading indicator with an explicit failure state
 - Optional latitude/longitude surface guide for positioning features
 - GitHub Pages deployment through GitHub Actions
 

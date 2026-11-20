@@ -41,6 +41,7 @@ const infoAge = document.getElementById("infoAge") as HTMLParagraphElement;
 const reticle = document.getElementById("reticle") as HTMLDivElement;
 const guideArrow = document.getElementById("guideArrow") as HTMLDivElement;
 const targetStatus = document.getElementById("targetStatus") as HTMLDivElement;
+const textureLoadingWarning = document.getElementById("textureLoadingWarning") as HTMLDivElement;
 const craterLabel = document.getElementById("craterLabel") as HTMLDivElement | null;
 const guideModeButton = document.getElementById("guideModeButton") as HTMLButtonElement;
 const exploreModeButton = document.getElementById("exploreModeButton") as HTMLButtonElement;
@@ -66,8 +67,40 @@ const planet = BABYLON.MeshBuilder.CreateSphere(
 );
 
 const planetMaterial = new BABYLON.StandardMaterial("planetMat", scene);
-const diffuseTexture = new BABYLON.Texture("./moon_8k.jpg", scene);
-const bumpTexture = new BABYLON.Texture("./moon_8k_n.jpg", scene);
+let loadedTextureCount = 0;
+const requiredTextureCount = 2;
+
+function markTextureLoaded() {
+    loadedTextureCount += 1;
+    if (loadedTextureCount === requiredTextureCount) {
+        textureLoadingWarning.classList.add("hidden");
+    }
+}
+
+function markTextureLoadFailed(textureName: string) {
+    console.error(`${textureName} texture could not be loaded.`);
+    textureLoadingWarning.textContent = "Texture failed to load";
+    textureLoadingWarning.classList.add("error");
+}
+
+const diffuseTexture = new BABYLON.Texture(
+    "./moon_8k.jpg",
+    scene,
+    undefined,
+    undefined,
+    undefined,
+    markTextureLoaded,
+    () => markTextureLoadFailed("Diffuse")
+);
+const bumpTexture = new BABYLON.Texture(
+    "./moon_8k_n.jpg",
+    scene,
+    undefined,
+    undefined,
+    undefined,
+    markTextureLoaded,
+    () => markTextureLoadFailed("Normal map")
+);
 
 // Mirror the source maps horizontally and vertically to match Babylon's sphere UVs.
 diffuseTexture.uScale = -1; diffuseTexture.uOffset = 1;

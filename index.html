@@ -173,6 +173,44 @@
       z-index: 20;
     }
 
+    #textureLoadingWarning {
+      position: absolute;
+      left: 60%;
+      top: 96px;
+      transform: translateX(-50%);
+      padding: 8px 14px;
+      border: 1px solid rgba(252, 211, 77, 0.7);
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.85);
+      color: #fcd34d;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      pointer-events: none;
+      z-index: 30;
+      animation: textureLoadingPulse 1.2s ease-in-out infinite;
+    }
+
+    #textureLoadingWarning.error {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #f87171;
+      animation: none;
+    }
+
+    #textureLoadingWarning.hidden {
+      display: none;
+    }
+
+    @keyframes textureLoadingPulse {
+      0%,
+      100% {
+        opacity: 0.45;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
     #infoLatitude {
       margin: 14px 0 0;
       color: #fcd34d;
@@ -264,6 +302,7 @@
   <div id="reticle"></div>
   <div id="guideArrow">&gt;</div>
   <div id="targetStatus"></div>
+  <div id="textureLoadingWarning">Texture Loading</div>
   <div id="craterLabel"></div>
 
   <div id="themeControls">
