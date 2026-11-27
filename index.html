@@ -59,6 +59,52 @@
       color: #dbeafe;
     }
 
+    #mareControls {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      color: #dbeafe;
+    }
+
+    #reticleCoordinates {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+      padding-bottom: 8px;
+    }
+
+    #reticleCoordinates p {
+      margin: 0;
+      color: white;
+      font-size: 0.85rem;
+      letter-spacing: 0.03em;
+      font-family: monospace;
+    }
+
+    #mareControls label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    #mareControls input[type="checkbox"] {
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+    }
+
     #themeSelector {
       min-width: 220px;
       padding: 6px 8px;
@@ -304,12 +350,24 @@
   <div id="targetStatus"></div>
   <div id="textureLoadingWarning">Texture Loading</div>
   <div id="craterLabel"></div>
+  <div id="mareLabelContainer"></div>
 
   <div id="themeControls">
     <label for="themeSelector">Theme:</label>
     <select id="themeSelector" disabled>
       <option>Loading themes...</option>
     </select>
+  </div>
+
+  <div id="mareControls">
+    <div id="reticleCoordinates">
+      <p id="reticleLatitude">Latitude: --</p>
+      <p id="reticleLongitude">Longitude: --</p>
+    </div>
+    <label for="showMareToggle">
+      <input id="showMareToggle" type="checkbox" />
+      Show Lunar Mare
+    </label>
   </div>
 
   <div id="infoPanel">

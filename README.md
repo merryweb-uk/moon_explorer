@@ -11,6 +11,8 @@ A small interactive Moon surface explorer built with Babylon.js and TypeScript. 
 - Lock sound using `target_lock.mp3`
 - Information panel with feature description, coordinates, diameter, depth, and age
 - JSON-backed crater catalogue with runtime validation
+- Toggleable blue labels for lunar maria, including Latin names and English aliases
+- Live latitude and longitude readout at the reticle
 - Switchable filter-based and file-backed themes
 - Pulsating texture-loading indicator with an explicit failure state
 - Optional latitude/longitude surface guide for positioning features
@@ -110,6 +112,23 @@ Filter themes can use `diameterKm.min`, `diameterKm.max`, and `tags`. A feature 
 ```
 
 The theme selector is displayed in the top-right of the application. The default theme is **All Craters**. New themes can be added to `themes.json` or removed from it without changing the TypeScript code. Theme data uses the same validation rules as the canonical crater dataset. When a theme fails to load, the previously active theme remains selected.
+
+## Lunar Mare Labels and Reticle Coordinates
+
+Use the **Show Lunar Mare** checkbox in the bottom-right corner to show or hide labels for the lunar maria. Labels display the Latin name and English alias and are hidden when the feature is on the far side of the Moon.
+
+Mare data is stored in `public/mare.json`. Each entry has this format:
+
+```json
+{
+    "name": "Mare Imbrium",
+    "alias": "Sea of Rains",
+    "latitude": 34.72,
+    "longitude": 14.91
+}
+```
+
+Mare longitudes use the same project convention as crater data: positive values are west and negative values are east. The reticle latitude and longitude are shown above the mare checkbox and update as the reticle moves across the visible lunar surface.
 
 ## Replacing Assets
 

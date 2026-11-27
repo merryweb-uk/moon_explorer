@@ -108,5 +108,135 @@
         "depthKm": 3.2,
         "ageGa": 2.1,
         "tags": ["scientist-named","islamic-origin"]
+    },
+    {
+        "name": "Bailly",
+        "description": "The largest walled plain on the Moon's visible face, located near the southwest limb. Its vast 300 km diameter spans an enormous ancient impact basin with worn and eroded features.",
+        "latitude": -66.8,
+        "longitude": 69.4,
+        "diameterKm": 301,
+        "depthKm": 4.86,
+        "ageGa": 3.2,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Schickard",
+        "description": "A massive walled plain in the southwestern highlands featuring a relatively flat floor and eroded outer rim. Located at approximately 44.4°S and 55.1°W with a diameter of 212 km.",
+        "latitude": -44.4,
+        "longitude": 55.1,
+        "diameterKm": 212,
+        "depthKm": 1.5,
+        "ageGa": 3.0,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Janssen",
+        "description": "A large ancient impact crater in the southeastern highlands with a diameter of 201 km. Its worn appearance and terraced inner walls indicate a very old formation from the early lunar history.",
+        "latitude": -44.96,
+        "longitude": -40.82,
+        "diameterKm": 201,
+        "depthKm": 2.9,
+        "ageGa": 3.8,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Humboldt",
+        "description": "One of several huge rings on the lunar limb, located in the eastern highlands near the Moon's eastern edge. This 199 km diameter crater features terraced walls and stands as one of the most prominent eastern formations.",
+        "latitude": -27.02,
+        "longitude": -80.96,
+        "diameterKm": 199,
+        "depthKm": 3.69,
+        "ageGa": 3.8,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Maginus",
+        "description": "An ancient lunar impact crater in the southern highlands, almost three-quarters the diameter of Clavius. Located southeast of Tycho, this 194 km crater features a heavily scarred surface and multiple overlapping secondary craters.",
+        "latitude": -50.0,
+        "longitude": 6.2,
+        "diameterKm": 194,
+        "depthKm": 4.3,
+        "ageGa": 3.9,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Petavius",
+        "description": "One of the finest spots on the Moon with a grand double rampart, particularly prominent on its eastern side. This 184 km crater features numerous ridges radiating outward from its rim and stands out as a magnificent formation.",
+        "latitude": -25.3,
+        "longitude": -60.4,
+        "diameterKm": 184,
+        "depthKm": 3.4,
+        "ageGa": 3.8,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Longomontanus",
+        "description": "A large lunar impact crater located in the southern highlands at 49.5°S and 21.7°W. This 145 km crater displays complex terraced walls and multiple central peaks characteristic of ancient highland formations.",
+        "latitude": -49.5,
+        "longitude": 21.7,
+        "diameterKm": 145,
+        "depthKm": 4.5,
+        "ageGa": 3.8,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Vendelinus",
+        "description": "A large ancient crater in the eastern highlands featuring a complex multi-peaked central mountain range. This 147 km diameter formation shows the terraced walls typical of ancient impact structures from the early lunar period.",
+        "latitude": -16.46,
+        "longitude": -61.55,
+        "diameterKm": 147,
+        "depthKm": 2.2,
+        "ageGa": 3.8,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Stöfler",
+        "description": "A large lunar impact crater in the southern highlands with a very level interior crossed by rays from Tycho. This 126 km crater contains at least 16 minute craters within its floor and shows ancient lunar geology.",
+        "latitude": -41.1,
+        "longitude": -6.0,
+        "diameterKm": 126,
+        "depthKm": 2.8,
+        "ageGa": 3.8,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Langrenus",
+        "description": "A prominent crater with an irregularly terraced inner wall and wide rampart averaging about 20 kilometers across. This 132 km crater features a central peak system and is of Eratosthenian age on the lunar timescale.",
+        "latitude": -8.86,
+        "longitude": -61.04,
+        "diameterKm": 132,
+        "depthKm": 4.5,
+        "ageGa": 2.3,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Moretus",
+        "description": "A heavily cratered impact crater near the lunar south pole featuring a prominent central mountain formation rising about 2.1 kilometers above the floor. This 114 km crater displays sharp, well-preserved features typical of younger highland impacts.",
+        "latitude": -70.6,
+        "longitude": 5.5,
+        "diameterKm": 114,
+        "depthKm": 5.0,
+        "ageGa": 3.2,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Russell",
+        "description": "A 103 km crater located in the western Oceanus Procellarum near the lunar limb. Its proximity to the Moon's edge gives it a foreshortened appearance, making it challenging to observe from Earth due to libration effects.",
+        "latitude": 26.5,
+        "longitude": 75.4,
+        "diameterKm": 103,
+        "depthKm": 2.5,
+        "ageGa": 2.0,
+        "tags": ["scientist-named"]
+    },
+    {
+        "name": "Pitatus",
+        "description": "A 101 km lava-filled crater located on the southeastern edge of Mare Nubium (Sea of Clouds). This crater features a relatively shallow floor and is surrounded by rugged highland terrain typical of the Moon's ancient southern regions.",
+        "latitude": -29.88,
+        "longitude": 13.53,
+        "diameterKm": 101,
+        "depthKm": 0.68,
+        "ageGa": 3.0,
+        "tags": ["scientist-named"]
     }
 ]

@@ -1,0 +1,146 @@
+[
+    {
+        "name": "Mare Imbrium",
+        "alias": "Sea of Rains",
+        "latitude": 34.72,
+        "longitude": 14.91
+    },
+    {
+        "name": "Mare Serenitatis",
+        "alias": "Sea of Serenity",
+        "latitude": 27.29,
+        "longitude": -18.36
+    },
+    {
+        "name": "Mare Tranquillitatis",
+        "alias": "Sea of Tranquility",
+        "latitude": 8.35,
+        "longitude": -30.83
+    },
+    {
+        "name": "Mare Crisium",
+        "alias": "Sea of Crises",
+        "latitude": 16.18,
+        "longitude": -59.1
+    },
+    {
+        "name": "Mare Fecunditatis",
+        "alias": "Sea of Fertility",
+        "latitude": -7.83,
+        "longitude": -53.67
+    },
+    {
+        "name": "Mare Nectaris",
+        "alias": "Sea of Nectar",
+        "latitude": -15.19,
+        "longitude": -34.6
+    },
+    {
+        "name": "Mare Humorum",
+        "alias": "Sea of Moisture",
+        "latitude": -24.48,
+        "longitude": 38.57
+    },
+    {
+        "name": "Mare Nubium",
+        "alias": "Sea of Clouds",
+        "latitude": -20.59,
+        "longitude": 17.29
+    },
+    {
+        "name": "Mare Cognitum",
+        "alias": "Known Sea",
+        "latitude": -10.53,
+        "longitude": 22.31
+    },
+    {
+        "name": "Mare Insularum",
+        "alias": "Sea of Islands",
+        "latitude": 7.79,
+        "longitude": 30.64
+    },
+    {
+        "name": "Oceanus Procellarum",
+        "alias": "Ocean of Storms",
+        "latitude": 18.4,
+        "longitude": 57.4
+    },
+    {
+        "name": "Mare Vaporum",
+        "alias": "Sea of Vapors",
+        "latitude": 13.2,
+        "longitude": -4.09
+    },
+    {
+        "name": "Lacus Mortis",
+        "alias": "Lake of Death",
+        "latitude": 45.13,
+        "longitude": -27.32
+    },
+    {
+        "name": "Mare Frigoris",
+        "alias": "Sea of Cold",
+        "latitude": 57.59,
+        "longitude": 0.01
+    },
+    {
+        "name": "Mare Anguis",
+        "alias": "Serpent Sea",
+        "latitude": 22.43,
+        "longitude": -67.58
+    },
+    {
+        "name": "Mare Australe",
+        "alias": "Southern Sea",
+        "latitude": -47.77,
+        "longitude": -91.99
+    },
+    {
+        "name": "Mare Humboldtianum",
+        "alias": "Humboldt's Sea",
+        "latitude": 56.92,
+        "longitude": -81.54
+    },
+    {
+        "name": "Mare Ingenii",
+        "alias": "Sea of Cleverness",
+        "latitude": -33.25,
+        "longitude": -164.83
+    },
+    {
+        "name": "Mare Marginis",
+        "alias": "Sea of the Edge",
+        "latitude": 12.7,
+        "longitude": -86.52
+    },
+    {
+        "name": "Mare Moscoviense",
+        "alias": "Sea of Muscovy",
+        "latitude": 27.28,
+        "longitude": -148.12
+    },
+    {
+        "name": "Mare Orientale",
+        "alias": "Eastern Sea",
+        "latitude": -19.87,
+        "longitude": 94.67
+    },
+    {
+        "name": "Mare Smythii",
+        "alias": "Smyth's Sea",
+        "latitude": -1.71,
+        "longitude": -87.05
+    },
+    {
+        "name": "Mare Spumans",
+        "alias": "Foaming Sea",
+        "latitude": 1.3,
+        "longitude": -65.3
+    },
+    {
+        "name": "Mare Undarum",
+        "alias": "Sea of Waves",
+        "latitude": 7.49,
+        "longitude": -68.66
+    }
+]

@@ -26,6 +26,14 @@ type ThemeDefinition = {
     file?: string;
     filter?: ThemeFilter;
 };
+type LunarMare = {
+    name: string;
+    alias: string;
+    latitude: number;
+    longitude: number;
+    worldPosition: BABYLON.Vector3;
+};
+type LunarMareData = Omit<LunarMare, "worldPosition">;
 
 const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
 const infoPanel = document.getElementById("infoPanel") as HTMLDivElement;
@@ -48,6 +56,10 @@ const exploreModeButton = document.getElementById("exploreModeButton") as HTMLBu
 const guideFeatureSelector = document.getElementById("guideFeatureSelector") as HTMLDivElement;
 const guideFeatureList = document.getElementById("guideFeatureList") as HTMLUListElement;
 const themeSelector = document.getElementById("themeSelector") as HTMLSelectElement;
+const mareLabelContainer = document.getElementById("mareLabelContainer") as HTMLDivElement;
+const showMareToggle = document.getElementById("showMareToggle") as HTMLInputElement;
+const reticleLatitude = document.getElementById("reticleLatitude") as HTMLParagraphElement;
+const reticleLongitude = document.getElementById("reticleLongitude") as HTMLParagraphElement;
 
 const engine = new BABYLON.Engine(canvas, true);
 const scene = new BABYLON.Scene(engine);
@@ -152,6 +164,10 @@ window.addEventListener("keyup", (event) => {
 // Build feature markers
 let features: PlanetFeature[] = [];
 
+let mares: LunarMare[] = [];
+let mareLabelElements: Map<string, HTMLDivElement> = new Map();
+let showMaresEnabled = false;
+
 const surfaceGuide = new BABYLON.TransformNode("surfaceGuide", scene);
 let surfaceGuideVisible = false;
 let activeFeature: PlanetFeature | null = null;
@@ -173,6 +189,29 @@ function latLonToWorld(radius: number, latitudeDeg: number, longitudeDeg: number
     const z = radius * Math.cos(lat) * Math.sin(lon);
 
     return new BABYLON.Vector3(x, y, z);
+}
+
+function worldToLatLon(radius: number, position: BABYLON.Vector3): { latitude: number; longitude: number } {
+    const normalizedPos = position.normalize();
+
+    const latRad = Math.asin(normalizedPos.y);
+    const latitudeDeg = BABYLON.Tools.ToDegrees(latRad);
+
+    const lonRad = Math.atan2(normalizedPos.z, normalizedPos.x);
+    const longitudeDeg = 180 - BABYLON.Tools.ToDegrees(lonRad);
+
+    // Normalize longitude to -180 to 180
+    let normalizedLon = longitudeDeg;
+    if (normalizedLon > 180) {
+        normalizedLon -= 360;
+    } else if (normalizedLon < -180) {
+        normalizedLon += 360;
+    }
+
+    return {
+        latitude: latitudeDeg,
+        longitude: normalizedLon
+    };
 }
 
 function createSurfaceGuide() {
@@ -407,6 +446,121 @@ async function loadFeatureData(file: string): Promise<FeatureData[]> {
     return validateFeatureData(await loadJson(file));
 }
 
+function validateMareData(value: unknown): LunarMareData[] {
+    if (!Array.isArray(value)) {
+        throw new Error("Mare data must be an array.");
+    }
+
+    return value.map((entry, index) => {
+        const entryNumber = index + 1;
+        if (!isRecord(entry)) {
+            throw new Error(`Mare ${entryNumber} must be an object.`);
+        }
+
+        const name = entry.name;
+        if (typeof name !== "string" || name.trim() === "") {
+            throw new Error(`Mare ${entryNumber} must have a non-empty name.`);
+        }
+
+        const alias = entry.alias;
+        if (typeof alias !== "string" || alias.trim() === "") {
+            throw new Error(`Mare "${name}" must have a non-empty alias.`);
+        }
+
+        const latitude = readFiniteNumber(entry, "latitude", ` "${name}"`);
+        if (latitude < -90 || latitude > 90) {
+            throw new Error(`Mare "${name}" has an invalid latitude: ${latitude}.`);
+        }
+
+        const longitude = readFiniteNumber(entry, "longitude", ` "${name}"`);
+        if (longitude < -180 || longitude > 180) {
+            throw new Error(`Mare "${name}" has an invalid longitude: ${longitude}.`);
+        }
+
+        return { name, alias, latitude, longitude };
+    });
+}
+
+async function loadMareData(): Promise<LunarMareData[]> {
+    return validateMareData(await loadJson("./mare.json"));
+}
+
+function createMareLabel(mare: LunarMare): HTMLDivElement {
+    const label = document.createElement("div");
+    label.className = "mare-label";
+    label.innerHTML = `${mare.name}<br><span style="font-size: 0.9rem; font-weight: 400;">[${mare.alias}]</span>`;
+    label.style.position = "absolute";
+    label.style.color = "#3b82f6";
+    label.style.fontSize = "1.0rem";
+    label.style.fontWeight = "600";
+    label.style.pointerEvents = "none";
+    label.style.textShadow = "0 2px 8px rgba(0, 0, 0, 0.9)";
+    label.style.whiteSpace = "nowrap";
+    label.style.zIndex = "10";
+    label.style.display = "none";
+    label.style.textAlign = "center";
+    mareLabelContainer.appendChild(label);
+    return label;
+}
+
+function updateMareLabels() {
+    if (!showMaresEnabled) {
+        for (const label of mareLabelElements.values()) {
+            label.style.display = "none";
+        }
+        return;
+    }
+
+    const viewport = camera.viewport.toGlobal(
+        engine.getRenderWidth(),
+        engine.getRenderHeight()
+    );
+
+    for (const mare of mares) {
+        let label = mareLabelElements.get(mare.name);
+        if (!label) {
+            label = createMareLabel(mare);
+            mareLabelElements.set(mare.name, label);
+        }
+
+        // Check if the mare is on the visible hemisphere of the moon
+        // A point is visible if the dot product of its position with the camera direction is positive
+        const mareToCamera = camera.position.subtract(mare.worldPosition);
+        const mareNormal = mare.worldPosition.normalize();
+        const isOnVisibleHemisphere = BABYLON.Vector3.Dot(mareNormal, mareToCamera) > 0;
+
+        if (!isOnVisibleHemisphere) {
+            label.style.display = "none";
+            continue;
+        }
+
+        const labelWorldPos = mare.worldPosition
+            .clone()
+            .normalize()
+            .scale(planetRadius + craterLabelSurfaceOffset);
+
+        const cameraForward = camera.getTarget().subtract(camera.position).normalize();
+        const toLabel = labelWorldPos.subtract(camera.position).normalize();
+        const inFront = BABYLON.Vector3.Dot(cameraForward, toLabel) > 0;
+
+        const projected = BABYLON.Vector3.Project(
+            labelWorldPos,
+            BABYLON.Matrix.Identity(),
+            scene.getTransformMatrix(),
+            viewport
+        );
+
+        if (!inFront || projected.z < 0 || projected.z > 1) {
+            label.style.display = "none";
+        } else {
+            label.style.left = `${projected.x}px`;
+            label.style.top = `${projected.y}px`;
+            label.style.transform = "translate(-50%, -100%)";
+            label.style.display = "block";
+        }
+    }
+}
+
 function filterFeatureData(featureData: FeatureData[], filter: ThemeFilter | undefined): FeatureData[] {
     if (!filter) {
         return featureData;
@@ -574,6 +728,24 @@ themeSelector.addEventListener("change", () => {
 void initializeThemes().catch((error: unknown) => {
     console.error("Themes could not be loaded.", error);
     targetStatus.textContent = "Themes could not be loaded.";
+});
+
+async function initializeMares() {
+    try {
+        const mareDataList = await loadMareData();
+        mares = mareDataList.map((data) => ({
+            ...data,
+            worldPosition: latLonToWorld(planetRadius + 0.5, data.latitude, data.longitude)
+        }));
+    } catch (error: unknown) {
+        console.error("Mares could not be loaded.", error);
+    }
+}
+
+void initializeMares();
+
+showMareToggle.addEventListener("change", () => {
+    showMaresEnabled = showMareToggle.checked;
 });
 
 window.addEventListener("keydown", (event) => {
@@ -795,6 +967,23 @@ function updateFeatureDetection() {
     }
 }
 
+function updateReticleCoordinates() {
+    const pick = scene.pick(
+        engine.getRenderWidth() * 0.6,
+        engine.getRenderHeight() * 0.5,
+        (mesh) => mesh === planet
+    );
+
+    if (pick?.hit && pick.pickedPoint) {
+        const coords = worldToLatLon(planetRadius, pick.pickedPoint);
+        reticleLatitude.textContent = `Latitude: ${formatCoordinate(coords.latitude, "N", "S")}`;
+        reticleLongitude.textContent = `Longitude: ${formatCoordinate(coords.longitude, "W", "E")}`;
+    } else {
+        reticleLatitude.textContent = "Latitude: --";
+        reticleLongitude.textContent = "Longitude: --";
+    }
+}
+
 // Main loop
 scene.onBeforeRenderObservable.add(() => {
     updateMovement();
@@ -802,6 +991,8 @@ scene.onBeforeRenderObservable.add(() => {
     updateFeatureDetection();
     updateCraterLabel(activeFeature);
     updateGuideArrow(getGuideFeature());
+    updateMareLabels();
+    updateReticleCoordinates();
 });
 
 engine.runRenderLoop(() => {
